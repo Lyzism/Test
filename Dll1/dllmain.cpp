@@ -35,17 +35,23 @@ DWORD WINAPI InitializeHook(LPVOID lpReserved)
     CreateConsole();
 
     // Initialize Kiero
-    auto result = kiero::init(kiero::RenderType::D3D11);
-    if (result == kiero::Status::Success)
+    if (kiero::init(kiero::RenderType::D3D12) == kiero::Status::Success)
     {
-        std::cout << "Kiero berhasil diinisialisasi!" << kiero::getMethodsTable()[8] << std::endl;
+        std::cout << "Kiero berhasil diinisialisasi DX 11!" << kiero::getMethodsTable()[8] << std::endl;
+
+        // Hook fungsi Present (IDXGISwapChain::Present adalah index ke-8)
+        kiero::bind(8, (void**)&oPresent, hkPresent);
+    }
+    else if (kiero::init(kiero::RenderType::D3D11) == kiero::Status::Success)
+    {
+        std::cout << "Kiero berhasil diinisialisasi DX12!" << kiero::getMethodsTable()[8] << std::endl;
 
         // Hook fungsi Present (IDXGISwapChain::Present adalah index ke-8)
         kiero::bind(8, (void**)&oPresent, hkPresent);
     }
     else
     {
-        std::cout << "Kiero gagal diinisialisasi dengan status: " << result << std::endl;
+        std::cout << "Kiero gagal diinisialisasi dengan status: " << std::endl;
     }
 
     return TRUE;
