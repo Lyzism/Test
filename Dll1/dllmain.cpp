@@ -1,7 +1,9 @@
 // dllmain.cpp : Defines the entry point for the DLL application.
 #include "pch.h"
-#include <d3d11.h>
 #include "../kiero/kiero.h"
+
+#define KIERO_INCLUDE_D3D11 1
+#define KIERO_USE_MINHOOK 1
 
 // Typedef untuk fungsi Present
 typedef HRESULT(__stdcall* Present)(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
