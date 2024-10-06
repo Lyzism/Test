@@ -39,17 +39,24 @@ DWORD WINAPI InitializeHook(LPVOID lpReserved)
     // Initialize Kiero
     if (kiero::init(kiero::RenderType::D3D12) == kiero::Status::Success)
     {
-        std::cout << "Kiero berhasil diinisialisasi DX 11!" << kiero::getMethodsTable()[8] << std::endl;
+        std::cout << "Kiero berhasil diinisialisasi DX 12!" << kiero::getMethodsTable()[8] << std::endl;
+
+        // Hook fungsi Present (IDXGISwapChain::Present adalah index ke-8)
+        //kiero::bind(8, (void**)&oPresent, hkPresent);
+    }
+    else if (kiero::init(kiero::RenderType::D3D11) == kiero::Status::Success)
+    {
+        std::cout << "Kiero berhasil diinisialisasi DX11!" << kiero::getMethodsTable()[8] << std::endl;
 
         // Hook fungsi Present (IDXGISwapChain::Present adalah index ke-8)
         kiero::bind(8, (void**)&oPresent, hkPresent);
     }
-    else if (kiero::init(kiero::RenderType::D3D11) == kiero::Status::Success)
+    else if (kiero::init(kiero::RenderType::D3D9) == kiero::Status::Success)
     {
-        std::cout << "Kiero berhasil diinisialisasi DX12!" << kiero::getMethodsTable()[8] << std::endl;
+        std::cout << "Kiero berhasil diinisialisasi DX9!" << kiero::getMethodsTable()[8] << std::endl;
 
         // Hook fungsi Present (IDXGISwapChain::Present adalah index ke-8)
-        kiero::bind(8, (void**)&oPresent, hkPresent);
+        //kiero::bind(8, (void**)&oPresent, hkPresent);
     }
     else
     {
