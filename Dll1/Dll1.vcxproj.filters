@@ -84,9 +84,6 @@
     <ClInclude Include="..\SDK\CoreUObject_structs.hpp">
       <Filter>SDK</Filter>
     </ClInclude>
-    <ClInclude Include="..\kiero\kiero.h">
-      <Filter>kiero</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -103,9 +100,6 @@
     </ClCompile>
     <ClCompile Include="..\SDK\CoreUObject_functions.cpp">
       <Filter>SDK</Filter>
-    </ClCompile>
-    <ClCompile Include="..\kiero\kiero.cpp">
-      <Filter>kiero</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

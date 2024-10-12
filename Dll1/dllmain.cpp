@@ -2,9 +2,6 @@
 #include "pch.h"
 #include "../kiero/kiero.h"
 
-#define KIERO_INCLUDE_D3D11 1
-#define KIERO_USE_MINHOOK 1
-
 // Typedef untuk fungsi Present
 typedef HRESULT(__stdcall* Present)(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
 Present oPresent = NULL;
@@ -31,40 +28,59 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
     return oPresent(pSwapChain, SyncInterval, Flags);
 }
 
-DWORD WINAPI InitializeHook(LPVOID lpReserved)
+void InitializeKiero()
 {
-    // Buat console baru untuk menampilkan log
-    CreateConsole();
+    auto status = kiero::init(kiero::RenderType::D3D11);
 
-    // Initialize Kiero
-    if (kiero::init(kiero::RenderType::D3D12) == kiero::Status::Success)
+    if (status == kiero::Status::Success)
     {
-        std::cout << "Kiero berhasil diinisialisasi DX 12!" << kiero::getMethodsTable()[8] << std::endl;
+        std::cout << "Kiero successfully initialized!" << std::endl;
 
-        // Hook fungsi Present (IDXGISwapChain::Present adalah index ke-8)
-        //kiero::bind(8, (void**)&oPresent, hkPresent);
-    }
-    else if (kiero::init(kiero::RenderType::D3D11) == kiero::Status::Success)
-    {
-        std::cout << "Kiero berhasil diinisialisasi DX11!" << kiero::getMethodsTable()[8] << std::endl;
-
-        // Hook fungsi Present (IDXGISwapChain::Present adalah index ke-8)
-        kiero::bind(8, (void**)&oPresent, hkPresent);
-    }
-    else if (kiero::init(kiero::RenderType::D3D9) == kiero::Status::Success)
-    {
-        std::cout << "Kiero berhasil diinisialisasi DX9!" << kiero::getMethodsTable()[8] << std::endl;
-
-        // Hook fungsi Present (IDXGISwapChain::Present adalah index ke-8)
-        //kiero::bind(8, (void**)&oPresent, hkPresent);
+        // Hook the Present function (DX11 VTable index 8)
+        if (kiero::bind(8, (void**)&oPresent, hkPresent) == kiero::Status::Success)
+        {
+            std::cout << "Successfully hooked the Present function!" << std::endl;
+        }
+        else
+        {
+            std::cout << "Failed to hook the Present function!" << std::endl;
+        }
     }
     else
     {
-        std::cout << "Kiero gagal diinisialisasi dengan status: " << std::endl;
+        std::cout << "Kiero initialization failed with status code: " << static_cast<int>(status) << std::endl;
+        // Check specific failure cases
+        if (status == kiero::Status::ModuleNotFoundError)
+        {
+            std::cout << "Kiero could not find the appropriate module (e.g., D3D11 DLL)!" << std::endl;
+        }
+        else if (status == kiero::Status::NotSupportedError)
+        {
+            std::cout << "Kiero doesn't support this graphics API!" << std::endl;
+        }
+    }
+}
+
+DWORD APIENTRY main_thread(LPVOID)
+{
+    try
+    {
+        CreateConsole();
+        InitializeKiero();
+
+        while (true)
+        {
+            std::this_thread::sleep_for(1s);
+        }
+    }
+    catch (const std::exception& ex)
+    {
+        std::cout << "Error occured: " << ex.what();
     }
 
-    return TRUE;
+    return 0;
 }
+
 
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
@@ -74,7 +90,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-        CreateThread(NULL, 0, InitializeHook, NULL, 0, NULL);
+        CreateThread(NULL, 0, main_thread, NULL, 0, NULL);
         break;
 
     case DLL_THREAD_ATTACH:

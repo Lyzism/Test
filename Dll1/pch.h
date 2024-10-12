@@ -13,7 +13,7 @@
 #include <SDKDDKVer.h>
 #include <Windows.h>
 #include <Xinput.h>
-#include <D3D11.h>
+#include <d3d11.h>
 #include <wrl/client.h>
 
 #include <cinttypes>
@@ -58,5 +58,13 @@
 
 #include <regex>
 #include <tlhelp32.h>
+
+#define KIERO_INCLUDE_D3D11
+#define KIERO_USE_MINHOOK
+
+#pragma comment(lib, "kiero.lib")
+#pragma comment(lib, "MinHook.lib")
+
+using namespace std::chrono_literals;
 
 #endif //PCH_H
